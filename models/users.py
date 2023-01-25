@@ -10,21 +10,20 @@ class User(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "email": fastapi@gmail.com,
-                "username": "johndoe908",
+                "email": "fastapi@gmail.com",
+                "password": "strong!!!",
                 "events": [],
             } 
         }
 
-class NewUser(User):
+class NewUser(BaseModel):
     email: EmailStr
     events: Optional[List[Event]]
 
     class Config:
         schema_extra = {
             "example": {
-                "email": fastapi@gmail.com,
-                "username": "johndoe908",
+                "email": "fastapi@gmail.com",
                 "events": [],
             } 
         }
@@ -32,10 +31,11 @@ class NewUser(User):
 class UserSignIn(BaseModel):
     email: EmailStr
     password: str
+
     class Config:
         schema_extra = {
             "example": {
-                "email": fastapi@gmail.com,
+                "email": "fastapi@gmail.com",
                 "password": "strong!!!",
                 "events": [],
             } 

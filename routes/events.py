@@ -1,7 +1,9 @@
 from typing import List
 
-from fastapi import APIRouter, Body, HTTPException, status
-from models.events import Event
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
+from sqlalchemy import select
+from database.connection import get_session
+from models.events import Event, EventUpdate
 
 event_router = APIRouter(
     tags=["Events"]
@@ -11,14 +13,21 @@ events = []
 
 
 @event_router.get("/events", response_model=List[Event])
-async def retrieve_all_events() -> List[Event]:
+async def retrieve_all_events(session=Depends(get_session)) -> List[Event]:
+    # statement = select(Event)
+    # events = session.exec(statement).all()
+
+    # statement = select(Event)
+    # events = session.query(Event).offset(skip).limit(limit).all()
+    
+    events = session.query(Event).all()
     return events
 
 
 @event_router.get("/events/{id}", response_model=Event)
-async def retrieve_event(id: int) -> Event:
-    for event in events:
-        if event.id == id:
+async def retrieve_event(id: int, session=Depends(get_session)) -> Event:
+    event = session.get(Event, id)
+    if event:
             return event
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
@@ -27,8 +36,11 @@ async def retrieve_event(id: int) -> Event:
 
 
 @event_router.post("/events")
-async def create_event(body: Event = Body(...)) -> dict:
-    events.append(body)
+async def create_event(new_event: Event, session=Depends(get_session)) -> dict:
+    session.add(new_event)
+    session.commit()
+    session.refresh(new_event)
+    
     return {
         "message": "Event created successfully"
     }

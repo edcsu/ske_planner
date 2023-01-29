@@ -23,3 +23,15 @@ class User(Document):
 class UserSignIn(BaseModel):
     email: EmailStr
     password: str
+
+class NewUser(User):
+    password: str
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "email": "fastapi@packt.com",
+                "password": "Stro0ng!",
+                "username": "FastPackt"
+            }
+        }

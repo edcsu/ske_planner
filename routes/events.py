@@ -23,15 +23,16 @@ async def retrieve_all_events(session=Depends(get_session)) -> List[Event]:
     events = session.query(Event).all()
     return events
 
-
 @event_router.get("/events/{id}", response_model=Event)
 async def retrieve_event(id: int, session=Depends(get_session)) -> Event:
     event = session.get(Event, id)
     if event:
             return event
+    
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail="Event with supplied ID: " + str(id) + " does not exist")
+        detail="Event with supplied ID: " + str(id) + " does not exist"
+    )
 
 @event_router.post("/events")
 async def create_event(new_event: Event, session=Depends(get_session)) -> dict:
@@ -55,19 +56,23 @@ session=Depends(get_session)) -> Event:
         session.commit()
         session.refresh(event)
         return event
+    
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail="Event with supplied ID: " + str(id) + " does not exist")
+        detail="Event with supplied ID: " + str(id) + " does not exist"
+    )
 
 @event_router.delete("/events/{id}")
-async def delete_event(id: int) -> dict:
-    for event in events:
-        if event.id == id:
-            events.remove(event)
-            return {
-                "message": "Event deleted successfully"
-            }
-
+async def delete_event(id: int, session=Depends(get_session)) -> dict:
+    event = session.get(Event, id)
+    if event:
+        session.delete(event)
+        session.commit()
+        return {
+            "message": "Event deleted successfully"
+        }
+    
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail= "Event with supplied ID: " + str(id) + " does not exist")
+        detail= "Event with supplied ID: " + str(id) + " does not exist"
+    )

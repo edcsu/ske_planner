@@ -9,8 +9,10 @@ class User(Document):
     email: EmailStr
     password: str
     events: Optional[List[Link[Event]]]
+
     class Settings:
         name = "users"
+    
     class Config:
         schema_extra = {
             "example": {
